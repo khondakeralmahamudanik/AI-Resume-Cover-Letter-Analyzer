@@ -1,0 +1,6 @@
+{
+  "name": "AI Resume & Cover Letter Analyzer",
+  "description": "Evaluate resume-to-job alignment with an ATS match score, missing keyword tags, actionable improvement suggestions, and a tailored cover letter powered by Gemini.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
