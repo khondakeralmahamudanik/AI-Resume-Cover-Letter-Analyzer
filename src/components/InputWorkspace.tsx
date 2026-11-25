@@ -122,13 +122,29 @@ export function InputWorkspace({
         body: arrayBuffer,
       });
 
-      const data = await response.json().catch(() => ({}));
+      const rawText = await response.text();
+      let data: Record<string, unknown> = {};
+      if (rawText) {
+        try {
+          const parsed = JSON.parse(rawText);
+          if (typeof parsed === 'object' && parsed !== null) {
+            data = parsed as Record<string, unknown>;
+          }
+        } catch {
+          data = {};
+        }
+      }
+
       if (!response.ok) {
-        throw new Error(
-          typeof data?.error === 'string'
-            ? data.error
-            : 'Unable to extract text from the uploaded file.'
-        );
+        if (typeof data.error === 'string') {
+          throw new Error(data.error);
+        }
+        if (response.status === 404 || response.status === 405) {
+          throw new Error(
+            'PDF and Word (.docx) extraction requires the Node.js server. On static hosting, please paste your resume text or upload a .txt / .md file.'
+          );
+        }
+        throw new Error('Unable to extract text from the uploaded file.');
       }
 
       const extracted = typeof data?.text === 'string' ? data.text.trim() : '';

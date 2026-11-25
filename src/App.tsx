@@ -182,14 +182,24 @@ export default function App() {
       }
 
       if (!response.ok) {
-        const errorMsg =
+        const apiError =
           typeof data === 'object' &&
           data !== null &&
           'error' in data &&
           typeof (data as { error?: unknown }).error === 'string'
             ? (data as { error: string }).error
-            : `Analysis request failed (HTTP ${response.status}). Please try again.`;
-        throw new Error(errorMsg);
+            : null;
+
+        if (!apiError && (response.status === 404 || response.status === 405)) {
+          throw new Error(
+            'Backend API (/api/analyze) is unavailable on static hosting. Run this app on a Node.js server (npm run dev or npm start) with GEMINI_API_KEY configured.'
+          );
+        }
+
+        throw new Error(
+          apiError ||
+            `Analysis request failed (HTTP ${response.status}). Please try again.`
+        );
       }
 
       if (controller.signal.aborted) return;
