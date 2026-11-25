@@ -36,10 +36,13 @@ jobs:
 
       - name: Build static bundle for GitHub Pages
         env:
-          VITE_BASE_PATH: ${{ steps.pages.outputs.base_path }}/
+          RAW_BASE_PATH: ${{ steps.pages.outputs.base_path }}
         run: |
-          # Normalize base path (avoid double slash on root *.github.io sites)
-          export VITE_BASE_PATH="${VITE_BASE_PATH//\/\///}"
+          if [ -z "$RAW_BASE_PATH" ] || [ "$RAW_BASE_PATH" = "/" ]; then
+            export VITE_BASE_PATH="/"
+          else
+            export VITE_BASE_PATH="${RAW_BASE_PATH%/}/"
+          fi
           npm run build
 
       - name: Upload Pages artifact
